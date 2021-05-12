@@ -18,17 +18,17 @@ namespace KPI_lab6
         [Test]
         public async Task Test1()
         {
-            var resultList = new List<object>();
-            var expectedList = new List<object>();
             const string connectionString = "Server=127.0.0.1;Port=5432;Database=test6;User Id=postgres;Password=postgres;";
             const string query = "SELECT number, COUNT(*) from orders group by number order by number";
             var connection = new NpgsqlConnection(connectionString);
             var command = new NpgsqlCommand(query, connection);
             await connection.OpenAsync();
             var reader = await command.ExecuteReaderAsync();
+            var result = new List<object>();
+            var expected = new List<object>();
             while (await reader.ReadAsync())
             {
-                resultList.Add(new {Sno = reader.GetValue(0).ToString(), Count = reader.GetValue(1).ToString()});
+                result.Add(new {Number = reader.GetValue(0).ToString(), Count = reader.GetValue(1).ToString()});
             }
             await reader.CloseAsync();
             await connection.CloseAsync();
@@ -37,25 +37,25 @@ namespace KPI_lab6
             while (!csvreader.EndOfStream)
             {
                 var line = await csvreader.ReadLineAsync();
-                var objres = line?.Split(",");
-                expectedList.Add(new {Sno = objres[0], Count = objres[1]});
+                var vals = line?.Split(",");
+                expected.Add(new {Number = vals[0], Count = vals[1]});
             }
             csvreader.Close();
-            for(var i = 0; i<resultList.Count; i++)
+            for(var i = 0; i<result.Count; i++)
             {
-                if (!Equals(resultList[i], expectedList[i]))
+                if (!Equals(result[i], expected[i]))
                 {
                     await File.AppendAllTextAsync(@"C:\Users\onest\RiderProjects\KPI_lab6\KPI_lab6\log.txt",
-                        $"{1+i} : {resultList[i]} ::: {expectedList[i]}");
+                        $"{1+i} : {result[i]} ::: {expected[i]}");
                 }
             }
-            Assert.AreEqual(expectedList, resultList);
+            Assert.AreEqual(expected, result);
         }
         [Test]
         public async Task Test2()
         {
-            var resultList = new List<Song>();
-            var expectedList = new List<Song>();
+            var result = new List<Song>();
+            var expected = new List<Song>();
             const string connectionString = "Server=127.0.0.1;Port=5432;Database=test6;User Id=postgres;Password=postgres;";
             const string query = "SELECT * FROM song";
             
@@ -65,7 +65,7 @@ namespace KPI_lab6
             var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
-                resultList.Add(new Song()
+                result.Add(new Song()
                 {
                     Artist = reader.GetValue(0).ToString(), SongName = reader.GetValue(1).ToString(),
                     Duration = Convert.ToInt32(reader.GetValue(2))
@@ -78,20 +78,20 @@ namespace KPI_lab6
             while (!csvreader.EndOfStream)
             {
                 var line = await csvreader.ReadLineAsync();
-                var objres = line?.Split(",");
-                expectedList.Add(new Song(){Artist = objres[0], SongName = objres[1],
-                    Duration = Convert.ToInt32(objres[2])});
+                var vals = line?.Split(",");
+                expected.Add(new Song(){Artist = vals[0], SongName = vals[1],
+                    Duration = Convert.ToInt32(vals[2])});
             }
             csvreader.Close();
-            for(var i = 0; i<resultList.Count; i++)
+            for(var i = 0; i<result.Count; i++)
             {
-                if (!Equals(resultList[i], expectedList[i]))
+                if (!Equals(result[i], expected[i]))
                 {
                     await File.AppendAllTextAsync(@"C:\Users\onest\RiderProjects\KPI_lab6\KPI_lab6\log.txt",
-                        $"{1+i} : {resultList[i]} ::: {expectedList[i]}");
+                        $"{1+i} : {result[i]} ::: {expected[i]}");
                 }
             }
-            Assert.AreEqual(expectedList, resultList);
+            Assert.AreEqual(expected, result);
         }
     }
 
